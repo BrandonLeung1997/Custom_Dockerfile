@@ -1,0 +1,26 @@
+FROM ubuntu:latest
+
+RUN apt update
+RUN apt install -y openssh-server
+RUN apt install -y openjdk-11-jdk
+RUN apt install -y git curl file unzip zip xz-utils wget
+
+WORKDIR /root
+
+RUN git clone https://github.com/flutter/flutter.git -b stable
+
+ENV PATH="/root/flutter/bin:${PATH}"
+RUN flutter
+
+RUN mkdir -p Android/Sdk
+WORKDIR /root/Android/Sdk
+RUN wget https://dl.google.com/android/repository/commandlinetools-linux-9123335_latest.zip
+RUN unzip commandlinetools-linux-9123335_latest.zip
+
+Run mkdir latest
+RUN mv -i /root/Android/Sdk/cmdline-tools/* latest
+RUN mv ./latest ./cmdline-tools/
+RUN yes | /root/Android/Sdk/cmdline-tools/latest/bin/./sdkmanager --install "platform-tools" "platforms;android-29" "build-tools;29.0.2" "emulator"
+ENV PATH="/root/Android/Sdk/tools:/root/Android/Sdk/tools/bin:/root/Android/Sdk/emulator:/root/Android/Sdk/platform-tools:${PATH}"
+Run flutter doctor
+Run yes | flutter doctor --android-licenses
